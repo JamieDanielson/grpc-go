@@ -1,32 +1,43 @@
-# gRPC Hello World
+# grpc auto-instrumentation
 
-Follow these setup to run the [quick start][] example:
+## temporary start
 
- 1. Get the code:
+make local docker image for auto-instrumentation agent:
 
-    ```console
-    $ go get google.golang.org/grpc/examples/helloworld/greeter_client
-    $ go get google.golang.org/grpc/examples/helloworld/greeter_server
-    ```
+```sh
+# clone repo
+git clone git@github.com:open-telemetry/opentelemetry-go-instrumentation.git
+# navigate into new repo
+cd opentelemetry-go-instrumentation
+# make docker image called otel-go-agent:v0.1
+make docker-build IMG=otel-go-agent:v0.1
+# make sure you have it locally
+docker images | grep otel-go-agent
+```
 
- 2. Run the server:
+## setup
 
-    ```console
-    $ $(go env GOPATH)/bin/greeter_server &
-    ```
+```sh
+# replace `<APIKEY>` with actual api key
+export HONEYCOMB_API_KEY=<APIKEY>
 
- 3. Run the client:
+# build the docker images for all the go services
+docker-compose build
 
-    ```console
-    $ $(go env GOPATH)/bin/greeter_client
-    Greeting: Hello world
-    ```
+# create secret with api key
+kubectl create secret generic honeycomb --from-literal=api-key=$HONEYCOMB_API_KEY -n greetings
 
-For more details (including instructions for making a small change to the
-example code) or if you're having trouble running this example, see [Quick
-Start][].
+# deploy the collector
+kubectl apply -f otel-collector.yaml -n greetings
 
-[quick start]: https://grpc.io/docs/languages/go/quickstart
+# deploy the services with the auto-instrumentation agent
+kubectl apply -f hello/
 
----
+# make sure everything is up and running
+kubectl get pods -n greetings
 
+# follow logs for collector (optional)
+kubectl logs deployments/otel-collector --follow -n greetings
+```
+
+`curl localhost:7007`
