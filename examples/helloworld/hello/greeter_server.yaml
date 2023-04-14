@@ -55,7 +55,7 @@ spec:
             - containerPort: 50051
               name: http
         - name: backend-go-instrumentation
-          image: otel-go-agent:v0.6
+          image: otel-go-agent:v0.1
           env:
             - name: OTEL_TARGET_EXE
               value: /app/gserver
