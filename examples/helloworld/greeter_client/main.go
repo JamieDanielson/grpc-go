@@ -23,6 +23,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"net/http"
 	"time"
 
 	"google.golang.org/grpc"
@@ -42,6 +43,18 @@ var (
 
 func main() {
 	flag.Parse()
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		doGrpc(r.Context())
+	})
+
+	handler := http.Handler(mux)
+
+	log.Fatal(http.ListenAndServe(":7007", handler))
+}
+
+func doGrpc(ctx context.Context) {
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {

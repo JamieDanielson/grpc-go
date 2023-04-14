@@ -8,8 +8,8 @@ COPY greeter_client/*.go .
 RUN go get
 RUN go build -o /out/greeter_client .
 
-FROM scratch AS bin
+FROM golang:1.20 AS bin
 WORKDIR /app
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=build /out/greeter_client /app/
-CMD ["/app/greeter_client"]
+COPY --from=build /out/greeter_client /app/gclient
+CMD ["/app/gclient"]

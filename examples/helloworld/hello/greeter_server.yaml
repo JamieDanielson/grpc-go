@@ -43,28 +43,38 @@ spec:
       labels:
         app: backend
     spec:
+      restartPolicy: Always
+      shareProcessNamespace: true
+      securityContext: {}
       serviceAccountName: greeter-server
       terminationGracePeriodSeconds: 0
       containers:
         - name: backend
           image: greeter_server:local
           ports:
-          - containerPort: 50051
-            name: http
+            - containerPort: 50051
+              name: http
         - name: backend-go-instrumentation
-          image: otel-go-agent:v0.1
+          image: otel-go-agent:v0.6
           env:
-          - name: OTEL_TARGET_EXE
-            value: /app/greeter_server
-          - name: OTEL_EXPORTER_OTLP_ENDPOINT
-            value: otel-collector:4317
-          - name: OTEL_SERVICE_NAME
-            value: greeter_server
-          - name: OTEL_PROPAGATORS
-            value: "tracecontext,baggage"
+            - name: OTEL_TARGET_EXE
+              value: /app/gserver
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: otel-collector:4317
+            - name: OTEL_SERVICE_NAME
+              value: greeter_server
+            - name: OTEL_PROPAGATORS
+              value: "tracecontext,baggage"
           securityContext:
             runAsUser: 0
             capabilities:
               add:
                 - SYS_PTRACE
             privileged: true
+          volumeMounts:
+            - mountPath: /sys/kernel/debug
+              name: kernel-debug
+      volumes:
+        - name: kernel-debug
+          hostPath:
+            path: /sys/kernel/debug

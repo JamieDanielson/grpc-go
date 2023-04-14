@@ -28,6 +28,7 @@ import (
 
 	"google.golang.org/grpc"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -42,7 +43,8 @@ type server struct {
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Printf("Received: %v", in.GetName())
-	log.Printf("log SayHello ctx: %v", ctx)
+	met, _ := metadata.FromIncomingContext(ctx)
+	log.Printf("log SayHello headers: %v", met)
 	return &pb.HelloReply{Message: "Hello " + in.GetName()}, nil
 }
 
