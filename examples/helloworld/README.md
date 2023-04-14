@@ -27,3 +27,6 @@ example code) or if you're having trouble running this example, see [Quick
 Start][].
 
 [quick start]: https://grpc.io/docs/languages/go/quickstart
+
+---
+

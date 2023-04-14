@@ -1,0 +1,4 @@
+resources:
+- ns.yaml
+- greeter_client.yaml
+- greeter_server.yaml

@@ -1,0 +1,70 @@
+##################################################################################################
+# greeter-server services
+##################################################################################################
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: greeter-server
+  namespace: greetings
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: greetings
+  labels:
+    app: backend
+    service: backend
+    app.kubernetes.io/name: greeter-server
+spec:
+  selector:
+    app: backend
+  ports:
+  - name: http
+    port: 50051
+    targetPort: 50051
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeter-server
+  namespace: greetings
+  labels:
+    app: greeter-server
+    app.kubernetes.io/name: greeter-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      serviceAccountName: greeter-server
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: backend
+          image: greeter_server:local
+          ports:
+          - containerPort: 50051
+            name: http
+        - name: backend-go-instrumentation
+          image: otel-go-agent:v0.1
+          env:
+          - name: OTEL_TARGET_EXE
+            value: /app/greeter_server
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            value: otel-collector:4317
+          - name: OTEL_SERVICE_NAME
+            value: greeter_server
+          - name: OTEL_PROPAGATORS
+            value: "tracecontext,baggage"
+          securityContext:
+            runAsUser: 0
+            capabilities:
+              add:
+                - SYS_PTRACE
+            privileged: true

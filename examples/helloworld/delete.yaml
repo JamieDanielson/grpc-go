@@ -1,0 +1,88 @@
+##################################################################################################
+# greeter-client services
+##################################################################################################
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: greeter-client
+  namespace: greetings
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeter-client
+  namespace: greetings
+  labels:
+    app: greeter-client
+    app.kubernetes.io/name: greeter-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      serviceAccountName: greeter-client
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: frontend
+          image: greeter_client:local
+
+---
+##################################################################################################
+# greeter-server services
+##################################################################################################
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: greeter-server
+  namespace: greetings
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: greetings
+  labels:
+    app: backend
+    service: backend
+    app.kubernetes.io/name: greeter-server
+spec:
+  selector:
+    app: backend
+  ports:
+  - name: http
+    port: 50051
+    targetPort: 50051
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeter-server
+  namespace: greetings
+  labels:
+    app: greeter-server
+    app.kubernetes.io/name: greeter-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      serviceAccountName: greeter-server
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: backend
+          image: greeter_server:local
+          ports:
+          - containerPort: 50051
+            name: http

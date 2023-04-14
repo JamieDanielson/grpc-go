@@ -1,0 +1,20 @@
+version: "2.4"
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.75.0
+
+  greeter_server:
+    build:
+        context: .
+        dockerfile: ./greeter_server/Dockerfile
+    image: greeter_server:local
+    ports:
+      - 50051:50051
+
+  greeter_client:
+    build:
+        context: .
+        dockerfile: ./greeter_client/Dockerfile
+    image: greeter_client:local
+
