@@ -19,16 +19,12 @@ data:
         loglevel: debug
       file:
         path: /var/lib/data.json
-      otlp:
-        endpoint: "api.honeycomb.io:443"
-        headers:
-          "x-honeycomb-team": ${HONEYCOMB_API_KEY}
     service:
       pipelines:
         traces:
           receivers: [otlp]
           processors: [batch]
-          exporters: [logging,otlp,file]
+          exporters: [logging,file]
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -72,11 +68,6 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
-            - name: HONEYCOMB_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: api-key
-                  name: honeycomb
           image: otel/opentelemetry-collector-contrib:0.75.0
           imagePullPolicy: IfNotPresent
           name: otel-collector

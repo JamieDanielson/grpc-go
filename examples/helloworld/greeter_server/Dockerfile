@@ -2,6 +2,7 @@
 FROM golang:1.20 AS build
 WORKDIR /src
 ENV CGO_ENABLED=0
+ENV GOOS=linux
 
 COPY go.mod .
 COPY greeter_server/*.go .
