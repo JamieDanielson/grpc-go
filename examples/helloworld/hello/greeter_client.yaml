@@ -55,12 +55,12 @@ spec:
             - containerPort: 7007
               name: http
         - name: frontend-go-instrumentation
-          image: otel-go-agent:v0.6
+          image: otel-go-instrumentation:local
           env:
-            - name: OTEL_TARGET_EXE
+            - name: OTEL_GO_AUTO_TARGET_EXE
               value: /app/gclient
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: otel-collector:4317
+              value: http://otel-collector:4317
             - name: OTEL_SERVICE_NAME
               value: greeter_client
             - name: OTEL_PROPAGATORS

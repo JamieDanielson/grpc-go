@@ -9,23 +9,17 @@ make local docker image for auto-instrumentation agent:
 git clone git@github.com:open-telemetry/opentelemetry-go-instrumentation.git
 # navigate into new repo
 cd opentelemetry-go-instrumentation
-# make docker image called otel-go-agent:v0.1
-make docker-build IMG=otel-go-agent:v0.1
+# make docker image called otel-go-instrumentation:local
+make docker-build IMG=otel-go-instrumentation:local
 # make sure you have it locally
-docker images | grep otel-go-agent
+docker images | grep otel-go-instrumentation
 ```
 
 ## setup
 
 ```sh
-# replace `<APIKEY>` with actual api key
-export HONEYCOMB_API_KEY=<APIKEY>
-
 # build the docker images for all the go services
 docker-compose build
-
-# create secret with api key
-kubectl create secret generic honeycomb --from-literal=api-key=$HONEYCOMB_API_KEY -n greetings
 
 # deploy the collector
 kubectl apply -f otel-collector.yaml -n greetings
